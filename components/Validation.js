@@ -291,10 +291,7 @@ export default function Validation() {
           transform-style: preserve-3d;
         }
 
-        /* .form-demo:hover .card-inner:hover {
-          transform: rotateY(180deg);
-        } */
-
+     
         .form-demo .card-inner {
           transform: rotateY(${flip});
         }
