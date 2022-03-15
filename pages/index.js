@@ -34,7 +34,7 @@ export default function Home() {
           " flex align-items-center justify-content-center"
         }
       >
-        <Validation></Validation>
+        <Validation/>
       </div>
     </div>
   );

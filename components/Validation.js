@@ -1,21 +1,18 @@
-import styles from "./Validation.module.scss";
-
 import React, { useEffect, useState } from "react";
-// import { useFormik } from 'formik';
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
 import { Password } from "primereact/password";
-import { Dialog } from "primereact/dialog";
 import { Divider } from "primereact/divider";
 
-//   const data = await fetch("https://swapi.dev/api/planets/");
+import { useSession, signIn, signOut } from "next-auth/client";
+import { PrimeIcons } from "primereact/api";
 
 export default function Validation() {
+  const [session] = useSession();
   const [flip, setFlip] = useState("0deg");
   const [repositories, setRepositories] = useState([]);
   const [selectedRepository, setSelectedRepository] = useState();
-  const [showMessage, setShowMessage] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,7 +36,7 @@ export default function Validation() {
 
     console.log(data);
     console.log(data2);
-  }, [formData]);
+  }, [formData.github]);
 
   useEffect(() => {
     console.log(selectedRepository);
@@ -58,16 +55,6 @@ export default function Validation() {
     setFlip(flipValue);
   }
 
-  const dialogFooter = (
-    <div className="flex justify-content-center">
-      <Button
-        label="OK"
-        className="p-button-text"
-        autoFocus
-        onClick={() => setShowMessage(false)}
-      />
-    </div>
-  );
   const passwordHeader = <h6>Pick a password</h6>;
   const passwordFooter = (
     <>
@@ -85,12 +72,6 @@ export default function Validation() {
   const onSubmit = (event) => {
     event.preventDefault();
     console.log(event);
-
-    // setFormData(event.target.value);
-    // console.log(formData);
-    // setShowMessage(true);
-
-    // reset();
   };
 
   return (
@@ -103,29 +84,6 @@ export default function Validation() {
         </div>
         <div className="card-inner">
           <div className="card-front">
-            <Dialog
-              visible={showMessage}
-              onHide={() => setShowMessage(false)}
-              position="top"
-              footer={dialogFooter}
-              showHeader={false}
-              breakpoints={{ "960px": "80vw" }}
-              style={{ width: "30vw" }}
-            >
-              <div className="flex align-items-center flex-column pt-6 px-3">
-                <i
-                  className="pi pi-check-circle"
-                  style={{ fontSize: "5rem", color: "var(--green-500)" }}
-                ></i>
-                <h5>Registration Successful!</h5>
-                <p style={{ lineHeight: 1.5, textIndent: "1rem" }}>
-                  Your account is registered under name <b>{formData.name}</b> ;
-                  it'll be valid next 30 days without activation. Please check{" "}
-                  <b>{formData.email}</b> for activation instructions.
-                </p>
-              </div>
-            </Dialog>
-
             <div className="flex justify-content-center">
               <div className="card">
                 <form onSubmit={onSubmit} className="p-fluid">
@@ -216,11 +174,25 @@ export default function Validation() {
                   </div>
                   {/* end repositories field */}
 
-                  <Button
-                    type="submit"
-                    label="Salvar"
-                    className="mt-2 btnSbmt"
-                  />
+                  {session ? (
+                    <Button
+                      type="submit"
+                      label="Sair do Git"
+                      className="mt-2 btnSbmt"
+                      onClick={() => signOut()}
+                    >
+                      <i className={PrimeIcons.GITHUB}></i>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="submit"
+                      label="Entrar com Git"
+                      className="mt-2 btnSbmt"
+                      onClick={() => signIn()}
+                    >
+                      <i className={PrimeIcons.GITHUB}></i>
+                    </Button>
+                  )}
                 </form>
               </div>
             </div>
@@ -234,6 +206,15 @@ export default function Validation() {
                 />
               )}
             </div>
+            {session ? (
+              <div className="log">
+                <h3>Logado no github!</h3>
+              </div>
+            ) : (
+              <div className="log">
+                <h3>Usuário não conectado!</h3>
+              </div>
+            )}
             <div className="backName">
               <h4>Nome:</h4> <span>{gituser.name}</span>
             </div>
@@ -241,7 +222,8 @@ export default function Validation() {
               <h4>Repositórios:</h4> <span>{gituser.public_repos}</span>
             </div>
             <div className="backName">
-              <h4>Usuário desde:</h4> <span>{gituser.created_at}</span>
+              <h4>Usuário desde:</h4>{" "}
+              <span>{new Date(gituser.created_at).toLocaleString()}</span>
             </div>
             <div className="backName">
               <h4>Seguidores:</h4> <span>{gituser.followers}</span>
@@ -249,7 +231,6 @@ export default function Validation() {
             <div className="backName">
               <h4>Seguindo:</h4> <span>{gituser.following}</span>
             </div>
-           
           </div>
         </div>
       </div>
@@ -340,20 +321,23 @@ export default function Validation() {
         }
         .card-back .backName h4 {
           margin: 5px 0px;
-          
-        }
-
-        .card-front {
         }
 
         .card-back {
-          /* background-color: red; */
           color: white;
           transform: rotateY(180deg);
           position: absolute;
           top: 0;
           left: 0;
           width: 100%;
+        }
+
+        .log {
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
         }
 
         @keyframes gradient {
