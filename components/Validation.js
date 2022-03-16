@@ -39,6 +39,7 @@ export default function Validation() {
   }, [formData.github]);
 
   useEffect(() => {
+    // console.log(selectedRepository);
     console.log(selectedRepository);
   }, [selectedRepository]);
 
